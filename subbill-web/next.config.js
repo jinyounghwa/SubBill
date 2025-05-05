@@ -28,9 +28,12 @@ const nextConfig = {
       'static.vecteezy.com',
       'kmqjbmchpupkxcysywor.supabase.co' // Supabase Storage 도메인 추가
     ],
+    unoptimized: true, // Netlify 배포를 위한 설정
   },
-  // Next.js 13 이상에서는 i18n이 app 디렉토리와 호환되지 않으므로 제거
-  // 대신 middleware를 사용하여 구현 가능
+  // Netlify 배포를 위한 설정
+  trailingSlash: true,
+  // 정적 내보내기 설정
+  output: 'export',
 };
 
 module.exports = nextConfig;
