@@ -2,13 +2,12 @@
   command = "npm run build"
   publish = ".next"
 
-[build.environment]
-  NETLIFY_NEXT_PLUGIN_SKIP = "true"
-
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# 다이나믹 라우트를 위한 리다이렉트 설정
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/.netlify/functions/next"
   status = 200
+  force = true
