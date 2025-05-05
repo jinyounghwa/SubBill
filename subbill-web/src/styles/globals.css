@@ -6,8 +6,8 @@
 /* 기본 변수 */
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background-start-rgb: 226, 232, 240;
+  --background-end-rgb: 203, 213, 225;
 }
 
 /* 기본 스타일 */

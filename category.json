@@ -1,0 +1,95 @@
+[
+  {
+    "category": "AI",
+    "subcategories": [
+      {
+        "name": "생성형 AI",
+        "services": ["ChatGPT Plus", "Claude Pro", "Jasper", "Copy.ai", "Midjourney", "DALL·E", "Leonardo AI", "RunwayML", "ElevenLabs", "Synthesia"]
+      },
+      {
+        "name": "코딩보조",
+        "services": ["GitHub Copilot", "Tabnine", "Amazon CodeWhisperer", "Cursor"]
+      },
+      {
+        "name": "챗봇",
+        "services": ["Chatbase", "ManyChat", "Intercom Fin", "Ada", "Drift"]
+      }
+    ]
+  },
+  {
+    "category": "생산성",
+    "subcategories": [
+      {
+        "name": "교육",
+        "services": ["Khan Academy+", "Socratic", "Elicit", "Scite", "Udemy", "Coursera"]
+      },
+      {
+        "name": "데이터 분석",
+        "services": ["ChatGPT (Advanced Data Analysis)", "Pecan AI", "Tableau GPT", "ThoughtSpot", "MonkeyLearn"]
+      },
+      {
+        "name": "비즈니스 생산성",
+        "services": ["Notion AI", "GrammarlyGO", "Microsoft Copilot", "Google Duet AI", "Mem.ai", "Fireflies.ai", "Otter.ai"]
+      }
+    ]
+  },
+  {
+    "category": "영상·음성",
+    "subcategories": [
+      {
+        "name": "비디오",
+        "services": ["Netflix", "YouTube Premium", "Disney+", "RunwayML", "Synthesia"]
+      },
+      {
+        "name": "TTS",
+        "services": ["ElevenLabs", "Play.ht", "Amazon Polly"]
+      },
+      {
+        "name": "음악",
+        "services": ["Spotify", "Apple Music", "Melon", "YouTube Music"]
+      },
+      {
+        "name": "이미지 생성",
+        "services": ["Midjourney", "DALL·E", "Leonardo AI", "Adobe Firefly"]
+      }
+    ]
+  },
+  {
+    "category": "전문영역",
+    "subcategories": [
+      {
+        "name": "법률",
+        "services": ["Harvey", "Lexis+", "Casetext"]
+      },
+      {
+        "name": "의료",
+        "services": ["UpToDate", "Glass Health", "PathAI"]
+      },
+      {
+        "name": "금융",
+        "services": ["Seeking Alpha", "AlphaSense", "Bloomberg Terminal"]
+      },
+      {
+        "name": "재테크",
+        "services": ["뱅크샐러드 프리미엄", "토스 프라임", "머니트리"]
+      }
+    ]
+  },
+  {
+    "category": "보안",
+    "subcategories": [
+      {
+        "name": "백신",
+        "services": ["Malwarebytes", "Norton", "Bitdefender"]
+      },
+      {
+        "name": "암호관리",
+        "services": ["1Password", "Bitwarden", "LastPass"]
+      },
+      {
+        "name": "VPN",
+        "services": ["NordVPN", "Surfshark", "ProtonVPN", "ExpressVPN"]
+      }
+    ]
+  }
+]
