@@ -28,12 +28,7 @@ const nextConfig = {
       'static.vecteezy.com',
       'kmqjbmchpupkxcysywor.supabase.co' // Supabase Storage 도메인 추가
     ],
-    unoptimized: true, // Netlify 배포를 위한 설정
   },
-  // Netlify 배포를 위한 설정
-  trailingSlash: true,
-  // 정적 내보내기 설정
-  output: 'export',
 };
 
 module.exports = nextConfig;

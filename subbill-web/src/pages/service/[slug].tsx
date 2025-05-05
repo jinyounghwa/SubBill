@@ -174,7 +174,7 @@ export default function ServiceDetailPage({ service }: { service: Service }) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+export const getServerSideProps = async ({ params }: { params: { slug: string } }) => {
   const slug = params?.slug as string;
   
   console.log('요청된 슬러그:', slug);
