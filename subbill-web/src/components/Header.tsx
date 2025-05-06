@@ -111,7 +111,8 @@ export default function Header() {
         </Link>
         
         <div className="flex items-center space-x-4">
-          <div className="relative" ref={languageMenuRef}>
+          {/* 언어 선택 메뉴 - 히든 처리 */}
+          <div className="relative hidden" ref={languageMenuRef}>
             <button 
               className="flex items-center space-x-1 text-gray-700 hover:text-primary"
               onClick={() => setShowLanguageMenu(!showLanguageMenu)}

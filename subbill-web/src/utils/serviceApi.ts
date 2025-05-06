@@ -89,49 +89,123 @@ export async function incrementServiceViews(serviceId: string): Promise<boolean>
 }
 
 /**
- * 서비스 좋아요를 증가시킵니다.
+ * 사용자의 평가 상태를 가져옵니다.
  * @param serviceId 서비스 ID
- * @returns 성공 여부
+ * @returns 사용자의 평가 상태
  */
-export async function likeService(serviceId: string): Promise<boolean> {
+export async function getUserRating(serviceId: string): Promise<{ liked: boolean | null; disliked: boolean | null; rating: number | null; is_logged_in: boolean }> {
   try {
-    // 데이터베이스 함수를 사용하여 한 번의 호출로 좋아요 증가
-    const { error } = await supabase.rpc('increment_service_likes', {
+    const { data, error } = await supabase.rpc('get_user_rating', {
       service_id: serviceId
     });
 
     if (error) {
-      console.error('서비스 좋아요 증가 중 오류가 발생했습니다:', error);
+      console.error('사용자 평가 상태 확인 중 오류가 발생했습니다:', error);
+      return { liked: null, disliked: null, rating: null, is_logged_in: false };
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('사용자 평가 상태 확인 중 오류가 발생했습니다:', error);
+    return { liked: null, disliked: null, rating: null, is_logged_in: false };
+  }
+}
+
+/**
+ * 서비스 좋아요를 토글합니다.
+ * @param serviceId 서비스 ID
+ * @param value 좋아요 값 (기본값: true)
+ * @returns 성공 여부
+ */
+export async function likeService(serviceId: string, value: boolean = true): Promise<boolean> {
+  try {
+    // 데이터베이스 함수를 사용하여 좋아요 토글
+    const { data, error } = await supabase.rpc('toggle_service_like', {
+      service_id: serviceId,
+      like_value: value
+    });
+
+    if (error) {
+      // 로그인 필요 오류 확인
+      if (error.message.includes('로그인이 필요합니다')) {
+        console.error('좋아요 기능은 로그인이 필요합니다.');
+        return false;
+      }
+      console.error('서비스 좋아요 토글 중 오류가 발생했습니다:', error);
       return false;
     }
     
-    return true;
+    return data || false;
   } catch (error) {
-    console.error('서비스 좋아요 증가 중 오류가 발생했습니다:', error);
+    console.error('서비스 좋아요 토글 중 오류가 발생했습니다:', error);
     return false;
   }
 }
 
 /**
- * 서비스 싫어요를 증가시킵니다.
+ * 서비스 싫어요를 토글합니다.
  * @param serviceId 서비스 ID
+ * @param value 싫어요 값 (기본값: true)
  * @returns 성공 여부
  */
-export async function dislikeService(serviceId: string): Promise<boolean> {
+export async function dislikeService(serviceId: string, value: boolean = true): Promise<boolean> {
   try {
-    // 데이터베이스 함수를 사용하여 한 번의 호출로 싫어요 증가
-    const { error } = await supabase.rpc('increment_service_dislikes', {
-      service_id: serviceId
+    // 데이터베이스 함수를 사용하여 싫어요 토글
+    const { data, error } = await supabase.rpc('toggle_service_dislike', {
+      service_id: serviceId,
+      dislike_value: value
     });
 
     if (error) {
-      console.error('서비스 싫어요 증가 중 오류가 발생했습니다:', error);
+      // 로그인 필요 오류 확인
+      if (error.message.includes('로그인이 필요합니다')) {
+        console.error('싫어요 기능은 로그인이 필요합니다.');
+        return false;
+      }
+      console.error('서비스 싫어요 토글 중 오류가 발생했습니다:', error);
       return false;
     }
     
-    return true;
+    return data || false;
   } catch (error) {
-    console.error('서비스 싫어요 증가 중 오류가 발생했습니다:', error);
+    console.error('서비스 싫어요 토글 중 오류가 발생했습니다:', error);
+    return false;
+  }
+}
+
+/**
+ * 서비스에 별점을 매깁니다.
+ * @param serviceId 서비스 ID
+ * @param rating 별점 (0.5 ~ 5.0)
+ * @returns 성공 여부
+ */
+export async function rateService(serviceId: string, rating: number): Promise<boolean> {
+  try {
+    // 별점 범위 확인
+    if (rating < 0.5 || rating > 5.0) {
+      console.error('별점은 0.5에서 5.0 사이여야 합니다.');
+      return false;
+    }
+    
+    // 데이터베이스 함수를 사용하여 별점 매기기
+    const { data, error } = await supabase.rpc('rate_service', {
+      service_id: serviceId,
+      rating_value: rating
+    });
+
+    if (error) {
+      // 로그인 필요 오류 확인
+      if (error.message.includes('로그인이 필요합니다')) {
+        console.error('별점 기능은 로그인이 필요합니다.');
+        return false;
+      }
+      console.error('서비스 별점 매기기 중 오류가 발생했습니다:', error);
+      return false;
+    }
+    
+    return data || false;
+  } catch (error) {
+    console.error('서비스 별점 매기기 중 오류가 발생했습니다:', error);
     return false;
   }
 }
