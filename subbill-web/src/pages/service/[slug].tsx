@@ -75,13 +75,11 @@ export default function ServiceDetailPage({ service }: { service: Service }) {
   }, []);
 
   useEffect(() => {
-    // 조회수 증가 함수 호출
+    // 조회수 증가 함수 호출 - 비동기 처리 개선
     const incrementViews = async () => {
-      try {
-        await incrementServiceViews(service.id);
+      const success = await incrementServiceViews(service.id);
+      if (success) {
         setViews(prev => prev + 1);
-      } catch (error) {
-        console.error('조회수 증가 중 오류가 발생했습니다:', error);
       }
     };
 

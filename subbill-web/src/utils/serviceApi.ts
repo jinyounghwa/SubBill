@@ -68,83 +68,71 @@ export async function getServiceBySlug(slug: string): Promise<Service | null> {
 /**
  * 서비스 조회수를 증가시킵니다.
  * @param serviceId 서비스 ID
+ * @returns 성공 여부
  */
-export async function incrementServiceViews(serviceId: string): Promise<void> {
+export async function incrementServiceViews(serviceId: string): Promise<boolean> {
   try {
-    // 조회수 필드가 있다고 가정합니다. 없다면 마이그레이션이 필요합니다.
     const { error } = await supabase.rpc('increment_service_views', {
       service_id: serviceId
     });
 
     if (error) {
       console.error('조회수 증가 중 오류가 발생했습니다:', error);
+      return false;
     }
+    
+    return true;
   } catch (error) {
     console.error('조회수 증가 중 오류가 발생했습니다:', error);
+    return false;
   }
 }
 
 /**
  * 서비스 좋아요를 증가시킵니다.
  * @param serviceId 서비스 ID
+ * @returns 성공 여부
  */
-export async function likeService(serviceId: string): Promise<void> {
+export async function likeService(serviceId: string): Promise<boolean> {
   try {
-    const { data, error } = await supabase
-      .from('services')
-      .select('likes')
-      .eq('id', serviceId)
-      .single();
+    // 데이터베이스 함수를 사용하여 한 번의 호출로 좋아요 증가
+    const { error } = await supabase.rpc('increment_service_likes', {
+      service_id: serviceId
+    });
 
     if (error) {
       console.error('서비스 좋아요 증가 중 오류가 발생했습니다:', error);
-      return;
+      return false;
     }
-
-    const currentLikes = data.likes || 0;
     
-    const { error: updateError } = await supabase
-      .from('services')
-      .update({ likes: currentLikes + 1 })
-      .eq('id', serviceId);
-
-    if (updateError) {
-      console.error('서비스 좋아요 증가 중 오류가 발생했습니다:', updateError);
-    }
+    return true;
   } catch (error) {
     console.error('서비스 좋아요 증가 중 오류가 발생했습니다:', error);
+    return false;
   }
 }
 
 /**
  * 서비스 싫어요를 증가시킵니다.
  * @param serviceId 서비스 ID
+ * @returns 성공 여부
  */
-export async function dislikeService(serviceId: string): Promise<void> {
+export async function dislikeService(serviceId: string): Promise<boolean> {
   try {
-    const { data, error } = await supabase
-      .from('services')
-      .select('dislikes')
-      .eq('id', serviceId)
-      .single();
+    // 데이터베이스 함수를 사용하여 한 번의 호출로 싫어요 증가
+    const { error } = await supabase.rpc('increment_service_dislikes', {
+      service_id: serviceId
+    });
 
     if (error) {
       console.error('서비스 싫어요 증가 중 오류가 발생했습니다:', error);
-      return;
+      return false;
     }
-
-    const currentDislikes = data.dislikes || 0;
     
-    const { error: updateError } = await supabase
-      .from('services')
-      .update({ dislikes: currentDislikes + 1 })
-      .eq('id', serviceId);
-
-    if (updateError) {
-      console.error('서비스 싫어요 증가 중 오류가 발생했습니다:', updateError);
-    }
+    return true;
   } catch (error) {
     console.error('서비스 싫어요 증가 중 오류가 발생했습니다:', error);
+    return false;
   }
 }
 

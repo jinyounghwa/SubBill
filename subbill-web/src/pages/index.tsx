@@ -67,61 +67,104 @@ export default function Home() {
   
   // Supabase에서 인기 서비스 데이터 가져오기
   useEffect(() => {
+    let isMounted = true; // 컴포넌트 마운트 상태 추적
+    
     const fetchPopularServices = async () => {
       try {
         setLoading(true);
         
-        // Supabase에서 인기 서비스 가져오기 (좋아요 수로 정렬)
+        // 새로 만든 SQL 함수를 사용하여 인기 서비스 가져오기
         const { data, error } = await supabase
-          .from('services')
-          .select('*')
-          .order('likes', { ascending: false })
-          .limit(12);
+          .rpc('get_popular_services', { limit_count: 12 });
         
         if (error) {
           throw new Error('서비스 데이터를 가져오는데 실패했습니다: ' + error.message);
         }
         
-        if (data) {
+        // 컴포넌트가 마운트된 상태인 경우에만 상태 업데이트
+        if (data && isMounted) {
           // 데이터 형식 변환
-          const formattedServices: Service[] = data.map(service => ({
+          const formattedServices: Service[] = data.map((service: any) => ({
             id: service.id,
             title: service.title,
             category: service.category,
             subcategory: service.subcategory,
             imageUrl: service.thumbnail_url || 'https://via.placeholder.com/300x200',
             rating: service.rating,
-            comments: service.comments?.length || 0,
+            comments: 0, // 댓글 수는 별도로 가져와야 할 수 있음
             likes: service.likes,
             dislikes: service.dislikes,
-            slug: service.slug // slug 필드 추가
+            slug: service.slug
           }));
           
           setPopularServices(formattedServices);
+          
+          // 성공적으로 가져온 데이터를 캐시에 저장
+          try {
+            localStorage.setItem('cachedPopularServices', JSON.stringify(formattedServices));
+          } catch (cacheError) {
+            console.error('캐시 저장 오류:', cacheError);
+          }
         }
       } catch (error) {
         console.error('인기 서비스 로딩 오류:', error);
-        // 에러 발생 시 임시 데이터 사용
-        setPopularServices([
-          { id: '1', title: 'ChatGPT Plus', category: 'AI', subcategory: '생성형 AI', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.8, comments: 120, likes: 350, dislikes: 15, slug: 'chatgpt-plus' },
-          { id: '2', title: 'Notion AI', category: '생산성', subcategory: '비즈니스 생산성', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.6, comments: 85, likes: 230, dislikes: 12, slug: 'notion-ai' },
-          { id: '3', title: 'Netflix', category: '영상·음성', subcategory: '비디오', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.7, comments: 210, likes: 520, dislikes: 30, slug: 'netflix' },
-          { id: '4', title: 'Spotify', category: '영상·음성', subcategory: '음악', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.5, comments: 150, likes: 420, dislikes: 25, slug: 'spotify' },
-          { id: '5', title: 'GitHub Copilot', category: 'AI', subcategory: '코딩보조', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.9, comments: 180, likes: 480, dislikes: 10, slug: 'github-copilot' },
-          { id: '6', title: 'Adobe Creative Cloud', category: '디자인', subcategory: '그래픽 디자인', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.4, comments: 95, likes: 280, dislikes: 40, slug: 'adobe-creative-cloud' },
-          { id: '7', title: 'Microsoft 365', category: '생산성', subcategory: '오피스 제품군', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.3, comments: 130, likes: 310, dislikes: 45, slug: 'microsoft-365' },
-          { id: '8', title: 'Amazon Prime', category: '쇼핑', subcategory: '쇼핑 구독', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.2, comments: 160, likes: 380, dislikes: 55, slug: 'amazon-prime' },
-          { id: '9', title: 'Disney+', category: '영상·음성', subcategory: '스트리밍 서비스', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.6, comments: 140, likes: 400, dislikes: 20, slug: 'disney-plus' },
-          { id: '10', title: 'Slack', category: '생산성', subcategory: '팀 커뮤니케이션', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.5, comments: 110, likes: 290, dislikes: 35, slug: 'slack' },
-          { id: '11', title: 'Canva Pro', category: '디자인', subcategory: '온라인 디자인', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.7, comments: 100, likes: 320, dislikes: 18, slug: 'canva-pro' },
-          { id: '12', title: 'Grammarly', category: '생산성', subcategory: '문법 및 맞춤법 검사', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.4, comments: 90, likes: 260, dislikes: 22, slug: 'grammarly' }
-        ]);
+        
+        // 에러 발생 시 캐시된 데이터 사용 시도 (localStorage)
+        try {
+          const cachedServices = localStorage.getItem('cachedPopularServices');
+          if (cachedServices && isMounted) {
+            setPopularServices(JSON.parse(cachedServices));
+          } else if (isMounted) {
+            // 캐시된 데이터도 없는 경우 임시 데이터 사용
+            setPopularServices([
+              { id: '1', title: 'ChatGPT Plus', category: 'AI', subcategory: '생성형 AI', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.8, comments: 120, likes: 350, dislikes: 15, slug: 'chatgpt-plus' },
+              { id: '2', title: 'Notion AI', category: '생산성', subcategory: '비즈니스 생산성', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.6, comments: 85, likes: 230, dislikes: 12, slug: 'notion-ai' },
+              { id: '3', title: 'Netflix', category: '영상·음성', subcategory: '비디오', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.7, comments: 210, likes: 520, dislikes: 30, slug: 'netflix' },
+              { id: '4', title: 'Spotify', category: '영상·음성', subcategory: '음악', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.5, comments: 150, likes: 420, dislikes: 25, slug: 'spotify' },
+              { id: '5', title: 'GitHub Copilot', category: 'AI', subcategory: '코딩보조', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.9, comments: 180, likes: 480, dislikes: 10, slug: 'github-copilot' },
+              { id: '6', title: 'Adobe Creative Cloud', category: '디자인', subcategory: '그래픽 디자인', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.4, comments: 95, likes: 280, dislikes: 40, slug: 'adobe-creative-cloud' },
+              { id: '7', title: 'Microsoft 365', category: '생산성', subcategory: '오피스 제품군', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.3, comments: 130, likes: 310, dislikes: 45, slug: 'microsoft-365' },
+              { id: '8', title: 'Amazon Prime', category: '쇼핑', subcategory: '쇼핑 구독', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.2, comments: 160, likes: 380, dislikes: 55, slug: 'amazon-prime' },
+              { id: '9', title: 'Disney+', category: '영상·음성', subcategory: '스트리밍 서비스', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.6, comments: 140, likes: 400, dislikes: 20, slug: 'disney-plus' },
+              { id: '10', title: 'Slack', category: '생산성', subcategory: '팀 커뮤니케이션', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.5, comments: 110, likes: 290, dislikes: 35, slug: 'slack' },
+              { id: '11', title: 'Canva Pro', category: '디자인', subcategory: '온라인 디자인', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.7, comments: 100, likes: 320, dislikes: 18, slug: 'canva-pro' },
+              { id: '12', title: 'Grammarly', category: '생산성', subcategory: '문법 및 맞춤법 검사', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.4, comments: 90, likes: 260, dislikes: 22, slug: 'grammarly' }
+            ]);
+          }
+        } catch (cacheError) {
+          console.error('캐시된 데이터 로드 실패:', cacheError);
+          
+          if (isMounted) {
+            // 캐시 오류 발생 시 임시 데이터 사용
+            setPopularServices([
+              { id: '1', title: 'ChatGPT Plus', category: 'AI', subcategory: '생성형 AI', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.8, comments: 120, likes: 350, dislikes: 15, slug: 'chatgpt-plus' },
+              { id: '2', title: 'Notion AI', category: '생산성', subcategory: '비즈니스 생산성', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.6, comments: 85, likes: 230, dislikes: 12, slug: 'notion-ai' },
+              { id: '3', title: 'Netflix', category: '영상·음성', subcategory: '비디오', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.7, comments: 210, likes: 520, dislikes: 30, slug: 'netflix' },
+              { id: '4', title: 'Spotify', category: '영상·음성', subcategory: '음악', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.5, comments: 150, likes: 420, dislikes: 25, slug: 'spotify' },
+              { id: '5', title: 'GitHub Copilot', category: 'AI', subcategory: '코딩보조', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.9, comments: 180, likes: 480, dislikes: 10, slug: 'github-copilot' },
+              { id: '6', title: 'Adobe Creative Cloud', category: '디자인', subcategory: '그래픽 디자인', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.4, comments: 95, likes: 280, dislikes: 40, slug: 'adobe-creative-cloud' },
+              { id: '7', title: 'Microsoft 365', category: '생산성', subcategory: '오피스 제품군', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.3, comments: 130, likes: 310, dislikes: 45, slug: 'microsoft-365' },
+              { id: '8', title: 'Amazon Prime', category: '쇼핑', subcategory: '쇼핑 구독', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.2, comments: 160, likes: 380, dislikes: 55, slug: 'amazon-prime' },
+              { id: '9', title: 'Disney+', category: '영상·음성', subcategory: '스트리밍 서비스', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.6, comments: 140, likes: 400, dislikes: 20, slug: 'disney-plus' },
+              { id: '10', title: 'Slack', category: '생산성', subcategory: '팀 커뮤니케이션', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.5, comments: 110, likes: 290, dislikes: 35, slug: 'slack' },
+              { id: '11', title: 'Canva Pro', category: '디자인', subcategory: '온라인 디자인', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.7, comments: 100, likes: 320, dislikes: 18, slug: 'canva-pro' },
+              { id: '12', title: 'Grammarly', category: '생산성', subcategory: '문법 및 맞춤법 검사', imageUrl: 'https://via.placeholder.com/300x200', rating: 4.4, comments: 90, likes: 260, dislikes: 22, slug: 'grammarly' }
+            ]);
+          }
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
     
     fetchPopularServices();
+    
+    // 컴포넌트 언마운트 시 정리 작업
+    return () => {
+      isMounted = false;
+    };
   }, []);
   return (
     <div className="container mx-auto px-4 py-4">

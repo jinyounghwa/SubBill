@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { likeService, dislikeService } from '@/utils/serviceApi';
 
 // 인라인 타입 정의
 interface Service {
@@ -26,12 +27,44 @@ interface ServiceDescriptionProps {
 }
 
 const ServiceDescription: React.FC<ServiceDescriptionProps> = ({ service }) => {
+  const [likes, setLikes] = useState(service.likes || 0);
+  const [dislikes, setDislikes] = useState(service.dislikes || 0);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+  const [isDislikeLoading, setIsDislikeLoading] = useState(false);
+  
+  // 좋아요 처리 함수
+  const handleLike = async () => {
+    if (isLikeLoading) return;
+    
+    setIsLikeLoading(true);
+    const success = await likeService(service.id);
+    
+    if (success) {
+      setLikes(prev => prev + 1);
+    }
+    
+    setIsLikeLoading(false);
+  };
+  
+  // 싫어요 처리 함수
+  const handleDislike = async () => {
+    if (isDislikeLoading) return;
+    
+    setIsDislikeLoading(true);
+    const success = await dislikeService(service.id);
+    
+    if (success) {
+      setDislikes(prev => prev + 1);
+    }
+    
+    setIsDislikeLoading(false);
+  };
   return (
     <div className="bg-white shadow-md rounded-lg p-6 h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold">{service.title}</h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+        <h1 className="text-2xl md:text-3xl font-bold mb-3 md:mb-0">{service.title}</h1>
         
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4 md:space-x-6">
           <div className="flex items-center">
             <svg className="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
@@ -39,18 +72,26 @@ const ServiceDescription: React.FC<ServiceDescriptionProps> = ({ service }) => {
             <span className="ml-1 text-lg font-medium">{service.rating ? service.rating.toFixed(1) : '평점 없음'}</span>
           </div>
           
-          <button className="flex items-center hover:bg-gray-100 p-2 rounded-full transition-colors">
+          <button 
+            onClick={handleLike}
+            disabled={isLikeLoading}
+            className="flex items-center hover:bg-gray-100 p-2 rounded-full transition-colors disabled:opacity-50"
+          >
             <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
               <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path>
             </svg>
-            <span className="ml-1 font-medium">{service.likes || 0}</span>
+            <span className="ml-1 font-medium">{likes}</span>
           </button>
           
-          <button className="flex items-center hover:bg-gray-100 p-2 rounded-full transition-colors">
+          <button 
+            onClick={handleDislike}
+            disabled={isDislikeLoading}
+            className="flex items-center hover:bg-gray-100 p-2 rounded-full transition-colors disabled:opacity-50"
+          >
             <svg className="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z"></path>
             </svg>
-            <span className="ml-1 font-medium">{service.dislikes || 0}</span>
+            <span className="ml-1 font-medium">{dislikes}</span>
           </button>
         </div>
       </div>

@@ -36,7 +36,7 @@ const ServiceHeader: React.FC<ServiceHeaderProps> = ({ service }) => {
       <div className="flex flex-col items-start gap-6">
         <div className="w-full relative">
           {service.image_url ? (
-            <div className="relative w-full h-96 rounded-lg overflow-hidden">
+            <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden">
               <Image 
                 src={service.image_url} 
                 alt={service.title} 
