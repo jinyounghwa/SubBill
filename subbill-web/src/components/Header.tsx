@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 type Language = 'ko' | 'en' | 'ja';
 
@@ -111,6 +112,9 @@ export default function Header() {
         </Link>
         
         <div className="flex items-center space-x-4">
+          {/* 다크 모드 토글 버튼 */}
+          <ThemeToggle />
+          
           {/* 언어 선택 메뉴 - 히든 처리 */}
           <div className="relative hidden" ref={languageMenuRef}>
             <button 
