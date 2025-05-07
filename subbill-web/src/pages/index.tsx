@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 // 서비스 타입 정의
 type Service = {
@@ -173,35 +176,41 @@ export default function Home() {
           <h1 className="text-4xl md:text-5xl font-bold mb-3">구독 서비스 검색 플랫폼 SubBill</h1>
           <p className="text-xl text-gray-600 mb-4">다양한 구독 서비스를 한눈에 비교하고 확인하세요</p>
           
-          {/* 검색창 */}
-          <div className="max-w-2xl mx-auto mb-3">
-            <div className="relative">
-              <input
+          {/* 검색 바 */}
+          <div className="max-w-3xl mx-auto mb-12 px-4">
+            <div className="relative flex items-center w-full">
+              <Input
                 type="text"
+                className="w-full p-4 pr-12"
                 placeholder="구독 서비스 검색..."
-                className="w-full p-3 pl-10 text-base border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <svg
-                className="absolute left-3 top-3 h-5 w-5 text-gray-400"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+              <Button 
+                variant="ghost" 
+                className="absolute right-0 h-full px-3"
+                onClick={() => handleSearch(searchQuery)}
               >
-                <path
-                  fillRule="evenodd"
-                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  clipRule="evenodd"
-                />
-              </svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </Button>
               {searchQuery && (
                 <button
-                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                  className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   onClick={() => setSearchQuery('')}
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               )}
@@ -364,18 +373,24 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {/* 인기 서비스 카드 */}
               {popularServices.map((service) => (
-                <div key={service.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative">
-                  {/* 썸네일 이미지 */}
-                  <div className="h-40 bg-gray-200 relative" style={{backgroundImage: `url(${service.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
-                    <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded text-sm font-medium">
+                <Card key={service.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="relative pb-[56.25%] overflow-hidden bg-gray-100">
+                    <img 
+                      src={service.imageUrl} 
+                      alt={service.title} 
+                      className="absolute h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                    <div className="absolute top-0 right-0 bg-black bg-opacity-70 text-white text-xs px-2 py-1 m-2 rounded">
                       {service.category}
                     </div>
                   </div>
                   
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg mb-2">{service.title}</h3>
-                    
-                    <div className="flex items-center mb-3">
+                  <CardHeader className="pb-2">
+                    <CardTitle>{service.title}</CardTitle>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4 pt-0">
+                    <div className="flex items-center">
                       {/* 별점 */}
                       <div className="flex text-yellow-400 mr-1">
                         {Array(5).fill(0).map((_, i) => (
@@ -387,7 +402,7 @@ export default function Home() {
                       <span className="text-gray-600 text-sm">{service.rating.toFixed(1)}</span>
                     </div>
                     
-                    <div className="flex text-sm text-gray-500 justify-between">
+                    <div className="flex text-sm text-muted-foreground justify-between">
                       <div className="flex items-center">
                         <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -409,20 +424,23 @@ export default function Home() {
                         <span>{service.dislikes}</span>
                       </div>
                     </div>
-                    
-                    <div className="mt-3 text-right">
-                      <Link 
-                        href={`/service/${service.slug}`} 
-                        className="bg-primary text-white px-3 py-1 rounded hover:bg-primary-dark transition-colors inline-flex items-center text-sm"
-                      >
+                  </CardContent>
+                  
+                  <CardFooter className="flex justify-end">
+                    <Button 
+                      asChild
+                      size="sm"
+                      className="gap-1"
+                    >
+                      <Link href={`/service/${service.slug}`}>
                         자세히 보기
-                        <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </Link>
-                    </div>
-                  </div>
-                </div>
+                    </Button>
+                  </CardFooter>
+                </Card>
               ))}
             </div>
           )}

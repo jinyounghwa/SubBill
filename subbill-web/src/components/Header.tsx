@@ -142,23 +142,23 @@ export default function Header() {
           {isLoggedIn ? (
             <>
               {isAdmin && (
-                <Link href="/admin/content/new" className="text-white bg-primary px-3 py-1 rounded-md hover:bg-blue-600">
+                <Link href="/admin/content/new" className="text-white bg-primary px-3 py-1 rounded-md hover:bg-blue-600 flex items-center justify-center">
                   콘텐츠 추가
                 </Link>
               )}
               <button 
                 onClick={handleLogout}
-                className="text-gray-700 hover:text-primary"
+                className="text-gray-700 hover:text-primary flex items-center"
               >
                 로그아웃
               </button>
             </>
           ) : (
-            <div className="flex space-x-3">
-              <Link href="/login" className="text-gray-700 hover:text-primary">
+            <div className="flex items-center space-x-3">
+              <Link href="/login" className="text-gray-700 hover:text-primary flex items-center">
                 로그인
               </Link>
-              <Link href="/signup" className="text-white bg-primary px-3 py-1 rounded-md hover:bg-blue-600">
+              <Link href="/signup" className="text-white bg-primary px-3 py-1 rounded-md hover:bg-blue-600 flex items-center justify-center h-8">
                 회원가입
               </Link>
             </div>
